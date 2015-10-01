@@ -34,9 +34,8 @@ boxplot()関数についてまとめたファイル。
 ```{r dataset}
 set.seed(14)
 dat <- data.frame(
-  height = 150 + 15 * rnorm(50) + sample(c(rep(0, 35), rep(30, 15)), 1), 
-  name = rep(LETTERS[1:5], 10)
-  )
+  height = 150 + 15 * rnorm(50) + sample(c(rep(0, 35), rep(30, 15)), 1),
+  name = rep(LETTERS[1:5], 10))
 ```
 
 ## 箱ヒゲ図の作図
@@ -55,34 +54,36 @@ dat <- data.frame(
 # bxp(bx.p, border = "color")で指定すると、外枠はそのまま
 op <- par(mfrow = c(1, 2), bg = "light gray", fg = "red")
 # 外枠
-bxp(bx.p, axes = FALSE)
-bxp(bx.p, frame = FALSE) # スケールは残す。
+bxp(bx.p, axes = FALSE, main = "外枠なし")
+bxp(bx.p, frame = FALSE, main = "スケールは残す") # スケールは残す。
 par(op)
 
 op <- par(mfrow = c(1, 3))
 # x軸、y軸の目盛り
-bxp(bx.p, xaxt = "n")
-bxp(bx.p, yaxt = "n")
+bxp(bx.p, xaxt = "n", main = "x軸メモリなし")
+bxp(bx.p, yaxt = "n", main = "y軸メモリなし")
 # x軸をログスケールに変更。boxplot()では、箱のサイズは調整されない。
-bxp(bx.p, log = "x")
+bxp(bx.p, log = "x", main = "x軸をlogスケール")
 par(op)
 ```
 
 ### 箱ヒゲ図について（全体）
 ```{r plot02, echo = -c(1, 8, 10, 14)}
 op <- par(mfrow = c(1, 3))
-# 線種・太さ・色・箱の大きさ
-bxp(bx.p, lty = 1:5, lwd = 1:5, border = 1:5)
-bxp(bx.p, boxwex = c(0.2, 0.4, 0.6, 0.8, 1)) # default: 0.8
+# 線種・太さ・色
+bxp(bx.p, lty = 1:5, lwd = 1:5, border = 1:5, main = "線を変える")
+# 箱の大きさ（default: 0.8）
+bxp(bx.p, boxwex = c(0.2, 0.4, 0.6, 0.8, 1), main = "箱の太さを変える")
 
 # 箱の形（中央値の95%信頼区間?）
-bxp(bx.p, notch = TRUE)
+bxp(bx.p, notch = TRUE, main = "箱の形を変える")
 par(op)
 
 op <- par(mfrow = c(1, 2))
-# 外れ値について
-bxp(bx.p, outline = FALSE)
-bxp(bx.p, pch = 22, bg = "green") # 外れ値に色を付ける（pch21～25限定）
+# 外れ値なし（jitter plotと重ねる時？）
+bxp(bx.p, outline = FALSE, main = "外れ値なし")
+# 外れ値に色を付ける（pch21～25限定）
+bxp(bx.p, pch = 22, bg = "green", main = "色つき外れ値")
 par(op)
 ```
 
@@ -90,9 +91,9 @@ par(op)
 ```{r box, echo = -c(1, 6)}
 op <- par(mfrow = c(1, 2))
 # 線種・太さ・色
-bxp(bx.p, boxlty = 1:5, boxlwd = 1:5, boxcol = 1:5)
+bxp(bx.p, boxlty = 1:5, boxlwd = 1:5, boxcol = 1:5, main = "箱だけ線を変える")
 # 塗りつぶし
-bxp(bx.p, boxfill = 1:5)
+bxp(bx.p, boxfill = 1:5, main = "塗りつぶし")
 par(op)
 ```
 
@@ -100,29 +101,30 @@ par(op)
 ```{r median, echo = -c(1, 10)}
 op <- par(mfrow = c(1, 2))
 # 線種・太さ・色
-bxp(bx.p, medlty = 1:5, medlwd = 1:5, medcol = 1:5)
+bxp(bx.p, medlty = 1:5, medlwd = 1:5, medcol = 1:5, main = "中央値の線")
 # マーク
-bxp(bx.p, medpch = 1:5)
+bxp(bx.p, medpch = 1:5, main = "中央値の線にマーク")
 # medpchを指定したときの大きさ
-bxp(bx.p, medpch = 1:5, medcex = 1:5)
+bxp(bx.p, medpch = 1:5, medcex = 1:5, main = "中央値の線にマーク")
 # medpchで塗りつぶせる記号を選んだときの中身の色
-bxp(bx.p, medpch = 21:25, medbg = 1:5)
+bxp(bx.p, medpch = 21:25, medbg = 1:5, main = "中央値の線にマーク")
 par(op)
 ```
 
 ### whisker（ヒゲのみ）について
 ```{r whisker}
 # 線種・太さ・色
-bxp(bx.p, whisklty = 1:5, whisklwd = 1:5, whiskcol = 1:5)
+bxp(bx.p, whisklty = 1:5, whisklwd = 1:5, whiskcol = 1:5, main = "ヒゲを変える")
 ```
 
 ### staple（ヒゲの天辺のみ）について
 ```{r staple, echo = -c(1, 6)}
 op <- par(mfrow = c(1, 2))
 # 線種・太さ・色
-bxp(bx.p, staplelty = 1:5, staplelwd = 1:5, staplecol = 1:5)
-# ヒゲの長さ
-bxp(bx.p, staplewex = c(0.2, 0.4, 0.6, 0.8, 1)) # default: 0.5
+bxp(bx.p, staplelty = 1:5, staplelwd = 1:5, staplecol = 1:5,
+    main = "ヒゲの天辺を変える")
+# ヒゲの長さ（default: 0.5）
+bxp(bx.p, staplewex = c(0.2, 0.4, 0.6, 0.8, 1), main = "ヒゲの天辺の長さ")
 par(op)
 ```
 
@@ -130,15 +132,14 @@ par(op)
 ```{r outlier, echo = -c(1, 12)}
 op <- par(mfrow = c(1, 2))
 # 線種・太さ・色
-bxp(bx.p, outlty = 1:5, outlwd = 1:5, outcol = 1:5)
-# 長さ
-# default: 0.5 # 箱ごとの指定はできない。
-bxp(bx.p, outwex = 0.2, outlty = 1:5)
+bxp(bx.p, outlty = 1:5, outlwd = 1:5, outcol = 1:5, main = "外れ値の表示")
+# 長さ（default: 0.5 # 箱ごとの指定はできない。）
+bxp(bx.p, outwex = 0.2, outlty = 1:5, main = "外れ値に線を付けたときの長さ")
 # 大きさ
-bxp(bx.p, outpch = 1:5, outcex = 1:5)
+bxp(bx.p, outpch = 1:5, outcex = 1:5, main = "外れ値のマークの大きさ")
 # 色
 # outpchで塗りつぶせる記号を選んだときの色
-bxp(bx.p, outpch = 21:25, outbg = 1:5)
+bxp(bx.p, outpch = 21:25, outbg = 1:5, main = "外れ値のマークの色")
 par(op)
 ```
 
@@ -146,14 +147,14 @@ par(op)
 ```{r diff, echo = -c(1, 11)}
 op <- par(mfrow = c(1, 3))
 ### 塗りつぶしの色について
-bxp(bx.p, boxfill = "green")
-boxplot(height ~ name, data = dat, col = "red")
-boxplot(height ~ name, data = dat, boxfill ="blue")
+bxp(bx.p, boxfill = "green", main = "bxpでboxfill")
+boxplot(height ~ name, data = dat, col = "red", main = "boxplotでcol")
+boxplot(height ~ name, data = dat, boxfill ="blue", main = "boxplotでboxfill")
 
 ### 線の色について
-bxp(bx.p, boxcol = "blue") # boxのみ
-bxp(bx.p, border = "green") # 全体
-boxplot(height ~ name, data = dat, border = "red") # 全体
+bxp(bx.p, boxcol = "blue", main = "bxpでboxcol") # boxのみ
+bxp(bx.p, border = "green", main = "bxpでborder") # 全体
+boxplot(height ~ name, data = dat, border = "red", main = "boxplotでborder") # 全体
 par(op)
 ```
 
@@ -161,21 +162,21 @@ par(op)
 ### boxplotにjitterを重ねる。
 ```{r box-jitter}
 # jitterを重ね描きする時は、外れ値を描かない方が良い。
-bxp(bx.p, outline = FALSE)
+bxp(bx.p, outline = FALSE, main = "jitterプロットを重ねる")
 # x軸方向にずらすので、jitter()は横軸の変数にかける。
 points(jitter(as.numeric(dat$name), 0.2), dat$height, col = "blue")
 ```
 
 ### boxplotにrugを追加する
 ```{r box-rug}
-boxplot(dat$height, horizontal = TRUE)
+boxplot(dat$height, horizontal = TRUE, main = "rugを追加")
 rug(dat$height, ticksize = 0.2)
 ```
 
 ### gridの追加
 gridは箱ヒゲ図に上に上書きしてしまうので、gridを書いて、その上でbxp()関数を使う。
 ```{r box-grid}
-bx.p <- boxplot(height ~ name, dat)
+bx.p <- boxplot(height ~ name, dat, main = "gridを追加")
 grid(NULL, NULL, col = "grey80", lty = 1, lwd = 1)
 bxp(bx.p, add = TRUE)
 ```
