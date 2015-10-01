@@ -1,0 +1,179 @@
+---
+title: "箱ヒゲ図"
+author: "Shouhei TAKEUCHI"
+date: "\\today"
+header-includes:
+   - \usepackage{zxjatype}
+   - \setmainfont{メイリオ}
+   - \setjamainfont{メイリオ}
+   - \setmonofont{Yutapon coding Regular}
+output:
+  pdf_document:
+    latex_engine: xelatex
+    keep_tex: yes
+    toc: yes
+fontsize: 12pt
+lang: "Ja"
+---
+# Rで箱ヒゲ図
+boxplot()関数についてまとめたファイル。
+
+綺麗な図を描くためには、boxplot()を使うよりも、bxp()を使った方が都合がいい。たとえば、箱、ヒゲ、ヒゲの先端、外れ値をそれぞれ個別に柔軟に対処できる。
+
+## このファイルの更新情報
+```{r timelog, echo = FALSE}
+Sys.time()
+```
+
+* データを付値するオブジェクトをxからdatに変更し、boxplot()関数内のモデル式の書き方を変更した。
+
+## データ作成
+適当なデータを作成しておく。その際、必ず外れ値が出るように、乱数はシードを固定しておく。
+```{r dataset}
+set.seed(14)
+dat <- data.frame(
+  height = 150 + 15 * rnorm(50) + sample(c(rep(0, 35), rep(30, 15)), 1), 
+  name = rep(LETTERS[1:5], 10)
+  )
+```
+
+## 箱ヒゲ図の作図
+一番簡単なのは、boxplot()関数を使うこと。ただし、適当な変数に付値しておくと、データのサマリーが見れるようになる。
+```{r plot00}
+# boxplot関数は、bxp()用のデータも作成する。
+(bx.p <- boxplot(height ~ name, data = dat, main = "箱ヒゲ図"))
+```
+
+## 各種パラメータについて
+基本的に、bxp()関数を用いて指定する方が柔軟に対応できる。ただし、ggplot2のように背景をうまく変更する方法は見つけられなかった。
+
+### 外枠・目盛りについて
+```{r plot01, echo = -c(3, 7, 9, 15)}
+# par(fg = "color")で指定すると、外枠も色が付く
+# bxp(bx.p, border = "color")で指定すると、外枠はそのまま
+op <- par(mfrow = c(1, 2), bg = "light gray", fg = "red")
+# 外枠
+bxp(bx.p, axes = FALSE)
+bxp(bx.p, frame = FALSE) # スケールは残す。
+par(op)
+
+op <- par(mfrow = c(1, 3))
+# x軸、y軸の目盛り
+bxp(bx.p, xaxt = "n")
+bxp(bx.p, yaxt = "n")
+# x軸をログスケールに変更。boxplot()では、箱のサイズは調整されない。
+bxp(bx.p, log = "x")
+par(op)
+```
+
+### 箱ヒゲ図について（全体）
+```{r plot02, echo = -c(1, 8, 10, 14)}
+op <- par(mfrow = c(1, 3))
+# 線種・太さ・色・箱の大きさ
+bxp(bx.p, lty = 1:5, lwd = 1:5, border = 1:5)
+bxp(bx.p, boxwex = c(0.2, 0.4, 0.6, 0.8, 1)) # default: 0.8
+
+# 箱の形（中央値の95%信頼区間?）
+bxp(bx.p, notch = TRUE)
+par(op)
+
+op <- par(mfrow = c(1, 2))
+# 外れ値について
+bxp(bx.p, outline = FALSE)
+bxp(bx.p, pch = 22, bg = "green") # 外れ値に色を付ける（pch21～25限定）
+par(op)
+```
+
+### box（箱だけ）について
+```{r box, echo = -c(1, 6)}
+op <- par(mfrow = c(1, 2))
+# 線種・太さ・色
+bxp(bx.p, boxlty = 1:5, boxlwd = 1:5, boxcol = 1:5)
+# 塗りつぶし
+bxp(bx.p, boxfill = 1:5)
+par(op)
+```
+
+### median（中央値のみ）について
+```{r median, echo = -c(1, 10)}
+op <- par(mfrow = c(1, 2))
+# 線種・太さ・色
+bxp(bx.p, medlty = 1:5, medlwd = 1:5, medcol = 1:5)
+# マーク
+bxp(bx.p, medpch = 1:5)
+# medpchを指定したときの大きさ
+bxp(bx.p, medpch = 1:5, medcex = 1:5)
+# medpchで塗りつぶせる記号を選んだときの中身の色
+bxp(bx.p, medpch = 21:25, medbg = 1:5)
+par(op)
+```
+
+### whisker（ヒゲのみ）について
+```{r whisker}
+# 線種・太さ・色
+bxp(bx.p, whisklty = 1:5, whisklwd = 1:5, whiskcol = 1:5)
+```
+
+### staple（ヒゲの天辺のみ）について
+```{r staple, echo = -c(1, 6)}
+op <- par(mfrow = c(1, 2))
+# 線種・太さ・色
+bxp(bx.p, staplelty = 1:5, staplelwd = 1:5, staplecol = 1:5)
+# ヒゲの長さ
+bxp(bx.p, staplewex = c(0.2, 0.4, 0.6, 0.8, 1)) # default: 0.5
+par(op)
+```
+
+### outlierについて
+```{r outlier, echo = -c(1, 12)}
+op <- par(mfrow = c(1, 2))
+# 線種・太さ・色
+bxp(bx.p, outlty = 1:5, outlwd = 1:5, outcol = 1:5)
+# 長さ
+# default: 0.5 # 箱ごとの指定はできない。
+bxp(bx.p, outwex = 0.2, outlty = 1:5)
+# 大きさ
+bxp(bx.p, outpch = 1:5, outcex = 1:5)
+# 色
+# outpchで塗りつぶせる記号を選んだときの色
+bxp(bx.p, outpch = 21:25, outbg = 1:5)
+par(op)
+```
+
+## bxp()とboxplot()の違い
+```{r diff, echo = -c(1, 11)}
+op <- par(mfrow = c(1, 3))
+### 塗りつぶしの色について
+bxp(bx.p, boxfill = "green")
+boxplot(height ~ name, data = dat, col = "red")
+boxplot(height ~ name, data = dat, boxfill ="blue")
+
+### 線の色について
+bxp(bx.p, boxcol = "blue") # boxのみ
+bxp(bx.p, border = "green") # 全体
+boxplot(height ~ name, data = dat, border = "red") # 全体
+par(op)
+```
+
+## Tips
+### boxplotにjitterを重ねる。
+```{r box-jitter}
+# jitterを重ね描きする時は、外れ値を描かない方が良い。
+bxp(bx.p, outline = FALSE)
+# x軸方向にずらすので、jitter()は横軸の変数にかける。
+points(jitter(as.numeric(dat$name), 0.2), dat$height, col = "blue")
+```
+
+### boxplotにrugを追加する
+```{r box-rug}
+boxplot(dat$height, horizontal = TRUE)
+rug(dat$height, ticksize = 0.2)
+```
+
+### gridの追加
+gridは箱ヒゲ図に上に上書きしてしまうので、gridを書いて、その上でbxp()関数を使う。
+```{r box-grid}
+bx.p <- boxplot(height ~ name, dat)
+grid(NULL, NULL, col = "grey80", lty = 1, lwd = 1)
+bxp(bx.p, add = TRUE)
+```
